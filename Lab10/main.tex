@@ -1,0 +1,375 @@
+\documentclass[12pt,a4paper]{article}
+
+% ============================================================
+% PACKAGES
+% ============================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{makecell}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+
+\definecolor{headerblue}{RGB}{213,220,228}
+
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{SE: Machine Learning Lab}
+\lhead{Lab 10}
+\rfoot{\thepage}
+
+\begin{document}
+
+% ============================================================
+% HEADER
+% ============================================================
+\renewcommand{\arraystretch}{2.0}
+\begin{tabularx}{\textwidth}{|Y|}
+\hline
+\rowcolor{headerblue} \textbf{\large Department of Computer and Software Engineering} \\
+\hline
+\textbf{\large SE: Machine Learning} \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{12pt}
+
+% ============================================================
+% COURSE INFO
+% ============================================================
+\renewcommand{\arraystretch}{2.0}
+\begin{tabularx}{\textwidth}{|L|L|}
+\hline
+\textbf{Course Instructor:} & \textbf{Date:} \\
+\hline
+\textbf{Day:} & \textbf{Semester:} \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{12pt}
+
+% ============================================================
+% TITLE
+% ============================================================
+\begin{center}
+{\Large\bfseries Lab 10: Model Optimization and Feature Engineering}
+\end{center}
+
+\vspace{6pt}
+
+% ============================================================
+% META TABLE
+% ============================================================
+\renewcommand{\arraystretch}{1.8}
+\begin{tabularx}{\textwidth}{|Y|c|c|c|c|}
+\hline
+\textbf{Lab Title} & \textbf{CLO} & \textbf{BT} & \textbf{PLO} & \textbf{Weightage} \\
+\hline
+\makecell{{\small Model Optimization \& Feature Engineering} \\ {\small CV, Optuna, Encoding \& Leakage}} & & & & \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{6pt}
+
+% ============================================================
+% STUDENT TABLE
+% ============================================================
+\renewcommand{\arraystretch}{2.0}
+\begin{tabularx}{\textwidth}{|Y|Y|Y|Y|Y|}
+\hline
+\textbf{Name} & \textbf{Roll Number} & \textbf{Report /10} & \textbf{Viva /5} & \textbf{Total /15} \\
+\hline
+ & & & & \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{12pt}
+
+\begin{flushright}
+Checked on: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+\vspace{6pt}
+Signature: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+\end{flushright}
+
+\newpage
+
+% ============================================================
+% OBJECTIVES
+% ============================================================
+
+\section*{Objectives}
+
+\begin{itemize}
+\item Apply Grid Search, Random Search, and Bayesian Optimization
+\item Understand and use Cross-Validation properly
+\item Implement Target Encoding and avoid leakage
+\item Identify and fix Data Leakage
+\item Engineer Cyclical Features
+\end{itemize}
+
+% ============================================================
+% PROBLEM STATEMENT
+% ============================================================
+
+\section*{Problem Statement}
+
+You are given a dataset for a binary classification problem. The dataset contains numerical, categorical, and temporal features.
+
+Your goal is to improve model performance using optimization techniques and feature engineering while ensuring that no data leakage occurs.
+
+\textbf{Dataset File:} \texttt{lab10\_data.csv}
+
+The dataset contains:
+\begin{itemize}
+\item Numerical features: age, income
+\item Categorical feature: city
+\item Temporal feature: hour (0–23)
+\item Target variable: binary classification
+\item A hidden leakage feature for analysis
+\end{itemize}
+
+% ---------------------------
+% Dataset description added
+% ---------------------------
+\vspace{6pt}
+\section*{Dataset: Customer Transaction Response Prediction}
+
+This dataset simulates a real-world customer behavior prediction problem commonly encountered in domains like digital marketing, fraud detection, recommendation systems, and customer analytics.
+
+Each row represents a user interaction or transaction event, and the goal is to predict a binary outcome (e.g., whether a user converts, responds, or triggers a flag).
+
+\subsection*{Feature Description}
+
+    \textbf{Numerical Features}
+
+Numerical features include \textbf{age}, representing the age of the customer (18--60), which often correlates with purchasing power, risk behavior, or engagement; and \textbf{income}, a simulated annual income with realistic variance where higher-income users tend to behave differently in spending, fraud patterns, or response likelihood.
+
+    \textbf{Categorical Feature}
+
+The categorical feature \textbf{city} represents customer location segment (A, B, C) and in practice could correspond to geographic regions, customer tiers, or market segments. This feature is useful for demonstrating target encoding, categorical bias, and leakage pitfalls.
+
+    \textbf{Temporal Feature (Cyclical)}
+
+The temporal feature \textbf{hour (0--23)} represents the hour of the event (e.g., transaction time); in real-world systems user behavior is strongly time-dependent, fraud often spikes at unusual hours, and engagement varies across the day. This feature is intentionally included to teach why raw hour is a poor representation and why cyclical encoding (sin/cos) is necessary.
+
+    \textbf{Target Variable}
+
+The \textbf{target (0 or 1)} represents a binary outcome such as fraud vs normal transaction, click vs no click, or conversion vs no conversion. The target is not purely random---it depends on income patterns and time-based behavior (hour), ensuring models can learn meaningful patterns and that optimization techniques show measurable improvements.
+
+% ============================================================
+% TASKS
+% ============================================================
+
+\section*{Part A: Hyperparameter Optimization}
+
+\begin{tcolorbox}
+\textbf{Task 1: Grid Search}
+
+Use GridSearchCV to tune a Decision Tree model.
+
+Tune:
+- max\_depth  
+- min\_samples\_split  
+
+Report the best parameters.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+\begin{tcolorbox}
+\textbf{Task 2: Random Search}
+
+Use RandomizedSearchCV.
+
+Compare results and runtime with Grid Search.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+\begin{tcolorbox}
+\textbf{Task 3: Bayesian Optimization (Optuna)}
+
+Optimize hyperparameters using Optuna.
+
+Run at least 20 trials and report best parameters.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+% ============================================================
+
+\section*{Part B: Cross-Validation}
+
+\begin{tcolorbox}
+\textbf{Task 4: K-Fold Cross Validation}
+
+Perform 5-fold cross-validation.
+
+Report:
+- Mean accuracy  
+- Standard deviation  
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+\begin{tcolorbox}
+\textbf{Task 5: Comparison}
+
+Compare:
+- Train/Test split  
+- Cross-validation  
+
+Discuss differences in performance.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+% ============================================================
+
+\section*{Part C: Target Encoding}
+
+\begin{tcolorbox}
+\textbf{Task 6: Naive Target Encoding}
+
+Encode the categorical feature using mean target value.
+
+Observe model performance.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+\begin{tcolorbox}
+\textbf{Task 7: K-Fold Target Encoding}
+
+Implement K-Fold target encoding to avoid leakage.
+
+Compare with naive encoding.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+% ============================================================
+
+\section*{Part D: Data Leakage}
+
+\begin{tcolorbox}
+\textbf{Task 8: Identify Leakage}
+
+Identify features or steps that introduce leakage.
+
+Explain why they are problematic.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+\begin{tcolorbox}
+\textbf{Task 9: Fix Leakage}
+
+Modify the pipeline to remove leakage.
+
+Compare performance before and after.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+% ============================================================
+
+\section*{Part E: Cyclical Features}
+
+\begin{tcolorbox}
+\textbf{Task 10: Cyclical Encoding}
+
+Transform the hour feature using:
+
+\[
+\sin\left(\frac{2\pi x}{24}\right), \quad
+\cos\left(\frac{2\pi x}{24}\right)
+\]
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+\begin{tcolorbox}
+\textbf{Task 11: Comparison}
+
+Compare model performance:
+- Before encoding  
+- After encoding  
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+% ============================================================
+
+\section*{Discussion Questions}
+
+\textbf{Why does cross-validation give more reliable estimates than a single split?} \\
+A single train/test split is highly subject to variance and "luck." If you accidentally split all the easy-to-predict rows into the test set, your model will show an artificially high accuracy that won't hold up in the real world. Cross-validation (like k-fold) rotates the data, ensuring every single data point is used for both training and validation across different iterations. The variance (standard deviation) across these folds reveals the model's true stability and generalization ability.
+
+\vspace{10pt}
+
+\textbf{How does target encoding cause leakage?} \\
+Data leakage occurs when information from outside the training dataset is used to create the model. In naive target encoding, you calculate the mean of the target variable for a specific category using the \textit{entire} dataset. This means the feature value assigned to a training row contains embedded mathematical information about the target values of the test rows. You are essentially feeding the model the answer key. To prevent this, K-Fold target encoding is required, where the mean is calculated strictly on the training fold to encode the validation fold.
+
+\vspace{10pt}
+
+\textbf{Why are cyclical features better represented using sine/cosine?} \\
+Machine learning algorithms treat raw numbers linearly. For a feature like \texttt{hour}, the raw distance between hour 23 (11 PM) and hour 0 (Midnight) is 23 units. In reality, they are only 1 hour apart. This massive, false mathematical gap confuses distance-based and splitting-based algorithms. By transforming the feature using $\sin\left(\frac{2\pi x}{24}\right)$ and $\cos\left(\frac{2\pi x}{24}\right)$, you map the linear time onto a 2D circle. On this circle, the geometric distance between 23 and 0 is identical to the distance between 1 and 2, preserving the true chronological relationship.
+
+\vspace{10pt}
+
+\textbf{Which optimization method performed best and why?} \\
+Optuna (Bayesian Optimization) generally provides the best balance of peak performance and runtime efficiency. Grid Search is exhaustive; it will find the best combination within a specified grid, but it is computationally prohibitive for large parameter spaces. Random Search is much faster but entirely blind, relying on chance to find a good combination. Optuna builds a probabilistic model of the search space. It actively learns from past trials to "hunt" for the global optimum, intelligently directing its computational budget toward promising parameter regions rather than wasting time on poor combinations.
+
+\end{document}

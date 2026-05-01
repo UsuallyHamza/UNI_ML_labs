@@ -1,0 +1,463 @@
+\documentclass[12pt,a4paper]{article}
+
+% ============================================================
+% PACKAGES
+% ============================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{makecell}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+
+\definecolor{headerblue}{RGB}{213,220,228}
+
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{SE: Machine Learning Lab}
+\lhead{Lab 6}
+\rfoot{\thepage}
+
+\begin{document}
+
+% ============================================================
+% TABLE 1: DEPARTMENT HEADER
+% ============================================================
+\renewcommand{\arraystretch}{2.0}
+\begin{tabularx}{\textwidth}{|Y|}
+\hline
+\rowcolor{headerblue} \textbf{\large Department of Computer and Software Engineering} \\
+\hline
+\textbf{\large SE: Machine Learning} \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{12pt}
+
+% ============================================================
+% TABLE 2: INSTRUCTOR INFO
+% ============================================================
+\renewcommand{\arraystretch}{2.0}
+\begin{tabularx}{\textwidth}{|L|L|}
+\hline
+\textbf{Course Instructor:} Dr. Ahmed Raza & \textbf{Date:} \\
+\hline
+\textbf{Day:} & \textbf{Semester:} \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{12pt}
+
+% ============================================================
+% TITLE
+% ============================================================
+\begin{center}
+{\Large\bfseries Lab 6: K-Means Clustering from Scratch}
+\end{center}
+
+\vspace{6pt}
+
+% ============================================================
+% TABLE 3: LAB METADATA
+% ============================================================
+\renewcommand{\arraystretch}{1.8}
+\begin{tabularx}{\textwidth}{|Y|c|c|c|c|}
+\hline
+\textbf{Lab Title} & \textbf{CLO} & \textbf{BT} & \textbf{PLO} & \textbf{Weightage} \\
+\hline
+\makecell{{\small K-Means Clustering} \\ {\small From Scratch}} & & & & \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{6pt}
+
+% ============================================================
+% TABLE 4: STUDENT INFO
+% ============================================================
+\renewcommand{\arraystretch}{2.0}
+\begin{tabularx}{\textwidth}{|Y|Y|Y|Y|Y|}
+\hline
+\textbf{Name} & \textbf{Roll Number} & \textbf{Report /10} & \textbf{Viva /5} & \textbf{Total /15} \\
+\hline
+ & & & & \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{12pt}
+
+\begin{flushright}
+Checked on: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+\vspace{6pt}
+
+Signature: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+\end{flushright}
+
+\newpage
+
+% ============================================================
+% LAB CONTENT
+% ============================================================
+
+\section{Learning Outcomes}
+
+After completing this lab students will be able to:
+
+\begin{itemize}
+\item Implement the K-Means clustering algorithm from scratch.
+\item Understand how different distance metrics affect clustering.
+\item Compare clustering results on separable vs overlapping datasets.
+\item Visualize cluster decision boundaries.
+\end{itemize}
+
+% ------------------------------------------------
+
+\section{Datasets}
+
+In this lab we will experiment with two datasets.
+
+\subsection{Dataset 1: Iris Dataset}
+
+The Iris dataset contains 150 samples.
+
+For visualization purposes we only use two features:
+
+\begin{itemize}
+\item Sepal Length
+\item Petal Length
+\end{itemize}
+
+\subsection{Dataset 2: Synthetic Dataset}
+
+We will also generate a synthetic dataset using:
+
+\begin{verbatim}
+sklearn.datasets.make_blobs
+\end{verbatim}
+
+Two versions will be created:
+
+\begin{itemize}
+\item Well-separated clusters
+\item Overlapping clusters
+\end{itemize}
+
+This allows us to observe how K-Means behaves when clusters are not clearly separable.
+
+% ------------------------------------------------
+
+\section{Distance Metrics}
+
+In this lab you will experiment with three distance metrics.
+
+\subsection{Euclidean Distance}
+
+\[
+d(x,y) = \sqrt{\sum (x_i - y_i)^2}
+\]
+
+Produces circular cluster boundaries.
+
+\subsection{Manhattan Distance}
+
+\[
+d(x,y) = \sum |x_i - y_i|
+\]
+
+Produces diamond-shaped cluster boundaries.
+
+\subsection{Cosine Distance}
+
+Cosine similarity measures the angle between two vectors.
+
+\[
+\text{similarity} =
+\frac{x \cdot y}{||x||\,||y||}
+\]
+
+Cosine distance:
+
+\[
+d(x,y) = 1 - similarity
+\]
+
+This metric is commonly used in:
+
+\begin{itemize}
+\item Text clustering
+\item Document similarity
+\item Embedding spaces
+\end{itemize}
+
+% ------------------------------------------------
+
+\section{Part A: Distance Function (3 Marks)}
+
+\begin{tcolorbox}
+
+Implement the function:
+
+\begin{verbatim}
+_distance(x1, x2)
+\end{verbatim}
+
+The function must support the following metrics:
+
+\begin{itemize}
+\item Euclidean
+\item Manhattan
+\item Cosine
+\end{itemize}
+
+Use NumPy operations only.
+
+\end{tcolorbox}
+
+% ------------------------------------------------
+
+\section{Part B: Cluster Assignment (4 Marks)}
+
+\begin{tcolorbox}
+
+Implement:
+
+\begin{verbatim}
+assign_clusters(X, centroids)
+\end{verbatim}
+
+Steps:
+
+\begin{itemize}
+\item Compute the distance from each point to every centroid
+\item Assign the point to the closest centroid
+\item Return cluster labels
+\end{itemize}
+
+\end{tcolorbox}
+
+% ------------------------------------------------
+
+\section{Part C: Update Centroids (4 Marks)}
+
+\begin{tcolorbox}
+
+Implement:
+
+\begin{verbatim}
+update_centroids(X, labels)
+\end{verbatim}
+
+Steps:
+
+\begin{itemize}
+\item For each cluster compute the mean of all assigned points
+\item Return updated centroid coordinates
+\end{itemize}
+
+\end{tcolorbox}
+
+% ------------------------------------------------
+
+\section{Part D: Full K-Means Algorithm (4 Marks)}
+
+\begin{tcolorbox}
+
+Implement:
+
+\begin{verbatim}
+fit(X)
+predict(X)
+\end{verbatim}
+
+Algorithm:
+
+\begin{enumerate}
+\item Initialize K centroids randomly
+\item Assign points to nearest centroid
+\item Update centroid locations
+\item Repeat until centroids converge or max iterations reached
+\end{enumerate}
+
+\end{tcolorbox}
+
+% ------------------------------------------------
+
+\section{Part E: Boundary Visualization (Bonus)}
+
+\begin{tcolorbox}
+
+Create a function:
+
+\begin{verbatim}
+plot_decision_boundaries(model, X)
+\end{verbatim}
+
+Steps:
+
+\begin{itemize}
+\item Create a mesh grid over the feature space
+\item Predict cluster label for each grid point
+\item Plot colored decision regions
+\end{itemize}
+
+Run the visualization for:
+
+\begin{itemize}
+\item Euclidean distance
+\item Manhattan distance
+\item Cosine distance
+\end{itemize}
+
+\end{tcolorbox}
+
+% ------------------------------------------------
+
+\section{Part F: Experimental Comparison}
+
+Run K-Means on both datasets.
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Dataset & Distance Metric & Observations \\
+\hline
+Iris & Euclidean & \\
+\hline
+Iris & Manhattan & \\
+\hline
+Iris & Cosine & \\
+\hline
+Separable Blobs & Euclidean & \\
+\hline
+Overlapping Blobs & Euclidean & \\
+\hline
+\end{tabular}
+\end{center}
+
+Discuss:
+
+\begin{itemize}
+\item How do distance metrics change cluster shapes?
+\item Which metric performs best for overlapping clusters?
+\item Does K-Means always converge to the same solution?
+\end{itemize}
+
+% ------------------------------------------------
+
+\section{Cluster Quality: Within Cluster Sum of Squares}
+
+K-Means attempts to minimize the following objective function:
+
+\[
+J = \sum_{i=1}^{n} ||x_i - \mu_{c_i}||^2
+\]
+
+Where:
+
+\begin{itemize}
+\item $x_i$ is a data point
+\item $\mu_{c_i}$ is the centroid of the cluster assigned to $x_i$
+\end{itemize}
+
+This value is often called:
+
+\begin{itemize}
+\item Within Cluster Sum of Squares (WCSS) or Sum of Squared Errors (SSE) 
+\item Inertia
+\end{itemize}
+
+Lower values indicate tighter clusters.
+
+% ------------------------------------------------
+
+\section{Choosing the Number of Clusters: Elbow Method}
+
+The number of clusters $K$ is usually unknown in real applications.
+
+The \textbf{Elbow Method} helps estimate a reasonable value for $K$.
+
+Procedure:
+
+\begin{enumerate}
+\item Run K-Means for different values of $K$
+\item Compute the inertia for each $K$
+\item Plot inertia vs $K$
+\end{enumerate}
+
+Typically the curve looks like:
+
+\begin{center}
+High decrease $\rightarrow$ elbow $\rightarrow$ slow decrease
+\end{center}
+
+The ``elbow'' point suggests the optimal number of clusters.
+
+% ------------------------------------------------
+
+\section{Part F: Compute Inertia (3 Marks)}
+
+\begin{tcolorbox}
+
+Implement the function:
+
+\begin{verbatim}
+compute_inertia(X, labels, centroids)
+\end{verbatim}
+
+Steps:
+
+\begin{itemize}
+\item For every point compute the squared distance to its centroid
+\item Sum the squared distances
+\item Return the total inertia
+\end{itemize}
+
+\end{tcolorbox}
+
+% ------------------------------------------------
+
+\section{Part G: Elbow Method (Bonus)}
+
+\begin{tcolorbox}
+
+Create a function:
+
+\begin{verbatim}
+plot_elbow_curve(X, k_values)
+\end{verbatim}
+
+Steps:
+
+\begin{itemize}
+\item Train K-Means for multiple values of $K$
+\item Compute inertia for each value
+\item Plot inertia vs $K$
+\end{itemize}
+
+Test with:
+
+\begin{verbatim}
+k_values = range(1,10)
+\end{verbatim}
+
+Which value of $K$ appears optimal for the dataset?
+
+\end{tcolorbox}
+
+\end{document}

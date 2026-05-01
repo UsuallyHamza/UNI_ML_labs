@@ -1,0 +1,391 @@
+\documentclass[12pt,a4paper]{article}
+
+% ============================================================
+% PACKAGES
+% ============================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{makecell}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+
+\definecolor{headerblue}{RGB}{213,220,228}
+
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{SE: Machine Learning Lab}
+\lhead{Lab 5}
+\rfoot{\thepage}
+
+\begin{document}
+
+% ============================================================
+% TABLE 1: DEPARTMENT HEADER
+% ============================================================
+\renewcommand{\arraystretch}{2.0}
+\begin{tabularx}{\textwidth}{|Y|}
+\hline
+\rowcolor{headerblue} \textbf{\large Department of Computer and Software Engineering} \\
+\hline
+\textbf{\large SE: Machine Learning} \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{12pt}
+
+% ============================================================
+% TABLE 2: INSTRUCTOR INFO
+% ============================================================
+\renewcommand{\arraystretch}{2.0}
+\begin{tabularx}{\textwidth}{|L|L|}
+\hline
+\textbf{Course Instructor:} Dr. Ahmed Raza & \textbf{Date:} \\
+\hline
+\textbf{Day:} & \textbf{Semester:} \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{12pt}
+
+% ============================================================
+% TITLE
+% ============================================================
+\begin{center}
+{\Large\bfseries Lab 5: Decision Tree Split using Gini and Information Gain}
+\end{center}
+
+\vspace{6pt}
+
+% ============================================================
+% TABLE 3: LAB METADATA
+% ============================================================
+\renewcommand{\arraystretch}{1.8}
+\begin{tabularx}{\textwidth}{|Y|c|c|c|c|}
+\hline
+\textbf{Lab Title} & \textbf{CLO} & \textbf{BT} & \textbf{PLO} & \textbf{Weightage} \\
+\hline
+\makecell{{\small Decision Tree Split} \\ {\small using Gini and Information Gain}} & & & & \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{6pt}
+
+% ============================================================
+% TABLE 4: STUDENT INFO
+% ============================================================
+\renewcommand{\arraystretch}{2.0}
+\begin{tabularx}{\textwidth}{|Y|Y|Y|Y|Y|}
+\hline
+\textbf{Name} & \textbf{Roll Number} & \textbf{Report /10} & \textbf{Viva /5} & \textbf{Total /15} \\
+\hline
+ & & & & \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{12pt}
+
+\begin{flushright}
+Checked on: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+\vspace{6pt}
+
+Signature: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+\end{flushright}
+
+\newpage
+
+% ============================================================
+% LAB CONTENT
+% ============================================================
+
+\section{Learning Outcomes}
+
+After completing this lab, the student will be able to:
+
+\begin{itemize}
+\item Compute Gini impurity for binary classification.
+\item Calculate Information Gain from candidate splits.
+\item Implement the split selection procedure used by decision trees.
+\item Observe bias toward high-cardinality features.
+\end{itemize}
+
+\section{Dataset}
+
+We will use the Iris dataset from \texttt{sklearn}.  
+To simplify the problem we restrict the dataset to two classes.
+
+Properties:
+
+\begin{itemize}
+\item Samples: 100
+\item Features: 4
+\item Classes: Binary
+\end{itemize}
+
+Dataset loading:
+
+\begin{verbatim}
+from sklearn.datasets import load_iris
+\end{verbatim}
+
+\section{Gini Impurity}
+
+For binary classification:
+
+\[
+Gini = 1 - (p_0^2 + p_1^2)
+\]
+
+A perfectly pure node has Gini impurity equal to 0.
+
+\section{Information Gain}
+
+The reduction in impurity after a split is:
+
+\[
+Gain =
+Gini(parent) -
+\left(
+\frac{n_L}{n}Gini(L)
++
+\frac{n_R}{n}Gini(R)
+\right)
+\]
+
+The split with the highest information gain is selected.
+
+% ============================================================
+
+\section{Part A: Implement Gini Impurity (3 Marks)}
+
+\begin{tcolorbox}
+
+Implement the function:
+
+\begin{verbatim}
+gini(y)
+\end{verbatim}
+
+The function should:
+
+\begin{itemize}
+\item compute class probabilities
+\item apply the Gini formula
+\item return impurity
+\end{itemize}
+
+Verify using:
+
+\begin{verbatim}
+y = [0,0,0,1]
+\end{verbatim}
+
+Compute impurity manually and compare.
+
+\vspace{5cm}
+
+\end{tcolorbox}
+
+% ============================================================
+
+\section{Part B: Implement Information Gain (4 Marks)}
+
+\begin{tcolorbox}
+
+Implement:
+
+\begin{verbatim}
+information_gain(parent, left, right)
+\end{verbatim}
+
+Steps:
+
+\begin{itemize}
+\item compute parent impurity
+\item compute child impurities
+\item compute weighted average
+\item subtract from parent impurity
+\end{itemize}
+
+\vspace{5cm}
+
+\end{tcolorbox}
+
+% ============================================================
+
+\section{Part C: Implement Tree Split Logic (4 Marks)}
+
+\begin{tcolorbox}
+
+Implement the function:
+
+\begin{verbatim}
+find_best_split(X, y)
+\end{verbatim}
+
+The function should:
+
+\begin{itemize}
+\item iterate over features
+\item compute candidate thresholds
+\item evaluate information gain
+\item return the best feature and threshold
+\end{itemize}
+
+Use NumPy operations where possible.
+
+\vspace{6cm}
+
+\end{tcolorbox}
+
+% ============================================================
+
+\section{Part D: Cardinality Bias Experiment (4 Marks)}
+
+\begin{tcolorbox}
+
+A new feature will be added:
+
+\begin{verbatim}
+index_feature = sample_index / N
+\end{verbatim}
+
+This feature contains many unique values.
+
+Run the split algorithm again and observe:
+
+\begin{itemize}
+\item which feature is selected
+\item whether the high-cardinality feature is preferred
+\end{itemize}
+
+Explain why this occurs.
+
+Explanation
+1.Feature 2 is selected in both cases.
+2.Whether the high-cardinality feature is preferred: No, it is not preferred.
+3.While decision trees are theoretically biased toward high-cardinality features, this only manifests if the feature can isolate classes. Because train_test_split randomly shuffles the target y, the sequential high-cardinality index_feature cannot separate the classes with a single threshold split. Furthermore, Feature 2 provides a nearly perfect Information Gain (0.49875). In a single-node split, a perfectly predictive continuous feature will mathematically overpower a high-cardinality noise feature.
+
+\vspace{6cm}
+
+\end{tcolorbox}
+
+\section{Expected Output}
+
+Your program should print:
+
+\begin{itemize}
+\item Best split feature
+\item Threshold
+\item Information gain
+\item Result of cardinality bias experiment
+\end{itemize}
+
+\newpage
+% ============================================================
+% Assessment Rubrics
+% ============================================================
+\begin{center}
+{\Large\bfseries Assessment Rubrics}
+
+\end{center}
+
+\textbf{Method:} Lab reports and instructor observation during lab sessions
+
+\textbf{Outcome Assessed:}
+
+\begin{enumerate}
+\item Ability to conduct experiments, as well as to analyze and interpret data (P).
+\item Ability to use the techniques, skills, and modern engineering tools necessary for engineering practice (P).
+\end{enumerate}
+
+% ============================================================
+% TABLE 5: Assessment Rubric Table
+% ============================================================
+{\scriptsize % <--- Sets font size smaller than normal text
+\renewcommand{\arraystretch}{1.5}
+\noindent
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{0.14\textwidth}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|c|}
+\hline
+\textbf{Performance} & 
+\textbf{Exceeds expectation (4-5)} & 
+\textbf{Meets expectation (3-2)} & 
+\textbf{Does not meet expectation (1)} & 
+\textbf{Marks} \\
+\hline
+
+% Row 1
+1. Realization of Experiment [a, b] & 
+Selects relevant equipment to the experiment, develops setup diagrams of equipment connections or wiring. & 
+Needs guidance to select relevant equipment and to develop equipment connection or wiring diagrams. & 
+Incapable of selecting relevant equipment to conduct the experiment. & 
+\\ \hline
+
+% Row 2
+2. Conducting Experiment [a, b] & 
+Does proper calibration of equipment, carefully examines equipment moving parts, and ensures smooth operation. & 
+Calibrates equipment, examines equipment moving parts, and operates the equipment with minor error. & 
+Unable to calibrate appropriate equipment, and equipment operation is substantially wrong. & 
+\\ \hline
+
+% Row 3
+3. Laboratory Safety Rules [a] & 
+Respectfully and carefully observes safety rules and procedures. & 
+Observes safety rules and procedures with minor deviation. & 
+Disregards safety rules and procedures. & 
+\\ \hline
+
+% Row 4
+6. Data Collection [a] & 
+Plans data collection to achieve experimental objectives, and conducts an orderly and complete data collection. & 
+Plans data collection to achieve experimental objectives, and collects complete data with minor error. & 
+Does not know how to plan data collection; data collected is incomplete and contain errors. & 
+\\ \hline
+
+% Row 5
+7. Data Analysis [a] & 
+Accurately conducts simple computations and statistical analysis; correlates results to known theoretical values; accounts for measurement errors. & 
+Conducts simple computations with minor error; reasonably correlates results to known theoretical values; attempts to account for errors. & 
+Unable to conduct simple statistical analysis; no attempt to correlate or explain errors. & 
+\\ \hline
+
+% Row 6
+8. Computer Use [a] & 
+Uses computer to collect and analyze data effectively. & 
+Uses computer to collect and analyze data with minor error. & 
+Does not know how to use computer to collect and analyze data. & 
+\\ \hline
+
+% Total Row
+\multicolumn{4}{|r|}{\textbf{Total}} & \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+}
+
+\textbf{Faculty:}
+
+\textbf{Name:} \rule{5cm}{0.4pt}
+
+\textbf{Signature:} \rule{5cm}{0.4pt}
+
+\textbf{Date:} \rule{5cm}{0.4pt}
+
+\end{document}

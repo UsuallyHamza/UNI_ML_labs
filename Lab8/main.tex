@@ -1,0 +1,307 @@
+\documentclass[12pt,a4paper]{article}
+
+% ============================================================
+% PACKAGES
+% ============================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{makecell}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+
+\definecolor{headerblue}{RGB}{213,220,228}
+
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{SE: Machine Learning Lab}
+\lhead{Lab 7}
+\rfoot{\thepage}
+
+\begin{document}
+
+% ============================================================
+% HEADER
+% ============================================================
+\renewcommand{\arraystretch}{2.0}
+\begin{tabularx}{\textwidth}{|Y|}
+\hline
+\rowcolor{headerblue} \textbf{\large Department of Computer and Software Engineering} \\
+\hline
+\textbf{\large SE: Machine Learning} \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{12pt}
+
+% ============================================================
+% COURSE INFO
+% ============================================================
+\renewcommand{\arraystretch}{2.0}
+\begin{tabularx}{\textwidth}{|L|L|}
+\hline
+\textbf{Course Instructor:} & \textbf{Date:} \\
+\hline
+\textbf{Day:} & \textbf{Semester:} \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{12pt}
+
+% ============================================================
+% TITLE
+% ============================================================
+\begin{center}
+{\Large\bfseries Lab 8: Fraud Detection using Isolation Forest and Gaussian Density}
+\end{center}
+
+\vspace{6pt}
+
+% ============================================================
+% META TABLE
+% ============================================================
+\renewcommand{\arraystretch}{1.8}
+\begin{tabularx}{\textwidth}{|Y|c|c|c|c|}
+\hline
+\textbf{Lab Title} & \textbf{CLO} & \textbf{BT} & \textbf{PLO} & \textbf{Weightage} \\
+\hline
+\makecell{{\small Fraud Detection} \\ {\small using Isolation Forest and Gaussian Density}} & & & & \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{6pt}
+
+% ============================================================
+% STUDENT TABLE
+% ============================================================
+\renewcommand{\arraystretch}{2.0}
+\begin{tabularx}{\textwidth}{|Y|Y|Y|Y|Y|}
+\hline
+\textbf{Name} & \textbf{Roll Number} & \textbf{Report /10} & \textbf{Viva /5} & \textbf{Total /15} \\
+\hline
+ & & & & \\
+\hline
+\end{tabularx}
+\renewcommand{\arraystretch}{1.0}
+
+\vspace{12pt}
+
+\begin{flushright}
+Checked on: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+\vspace{6pt}
+
+Signature: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+\end{flushright}
+
+\newpage
+
+% ============================================================
+% OBJECTIVES
+% ============================================================
+
+\section*{Objectives}
+
+\begin{itemize}
+\item Understand anomaly detection in real-world fraud scenarios
+\item Implement Isolation Forest using sklearn
+\item Implement Gaussian density estimation from scratch
+\item Visualize anomalous regions
+\end{itemize}
+
+% ============================================================
+% PROBLEM STATEMENT
+% ============================================================
+
+\section*{Problem Statement}
+
+You are designing a fraud detection system for a bank. Each transaction is represented using two features:
+
+\begin{itemize}
+\item Transaction Amount
+\item Time Gap Since Last Transaction
+\end{itemize}
+
+Normal transactions follow consistent patterns, while fraudulent transactions tend to deviate significantly.
+
+Your task is to detect fraudulent transactions using:
+
+\begin{itemize}
+\item Isolation Forest (algorithmic approach)
+\item Gaussian Density Estimation (probabilistic approach)
+\end{itemize}
+
+% ============================================================
+% DATASET
+% ============================================================
+
+\section*{Dataset Description}
+
+A synthetic dataset is provided:
+
+\begin{itemize}
+\item Normal data: Gaussian distribution
+\item Fraud data: Random outliers
+\item Labels:
+    \begin{itemize}
+    \item 1 = Normal
+    \item -1 = Fraud
+    \end{itemize}
+\end{itemize}
+
+% ============================================================
+% TASKS
+% ============================================================
+
+\section*{Part A: Isolation Forest (9 Marks)}
+
+\begin{tcolorbox}
+\textbf{Task 1: Train Isolation Forest}
+
+Implement a function to train an Isolation Forest model on the given dataset. 
+The model isolates anomalies by recursively splitting the data using random 
+feature selection and split values.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+\begin{tcolorbox}
+\textbf{Task 2: Predict Anomalies}
+
+Use the trained model to classify each transaction as normal or anomalous. 
+Observe how many points are identified as anomalies and compare with the 
+actual distribution.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+\begin{tcolorbox}
+\textbf{Task 3: Analyze Anomaly Scores}
+
+Compute anomaly scores for all data points. These scores are related to 
+the path length required to isolate a point in the trees. Points that are 
+isolated quickly (short path length) are more likely to be anomalies.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+% ============================================================
+
+\section*{Part B: Gaussian Density Estimation (12 Marks)}
+
+\begin{tcolorbox}
+\textbf{Task 4: Estimate Gaussian Parameters}
+
+Compute the mean and covariance matrix of the dataset.
+
+\[
+\mu = \frac{1}{N} \sum_{i=1}^{N} x_i
+\]
+
+\[
+\Sigma = \frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)(x_i - \mu)^T
+\]
+
+These parameters represent the center and spread of the data.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+\begin{tcolorbox}
+\textbf{Task 5: Compute Probability Density}
+
+Compute the probability density of each data point using the multivariate 
+Gaussian distribution:
+
+\[
+p(x) = \frac{1}{(2\pi)^{d/2} |\Sigma|^{1/2}} 
+\exp\left(-\frac{1}{2}(x-\mu)^T \Sigma^{-1} (x-\mu)\right)
+\]
+
+Points far from the mean will have lower probability values.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+\begin{tcolorbox}
+\textbf{Task 6: Detect Anomalies using Threshold}
+
+Classify transactions based on probability values:
+
+\[
+\text{If } p(x) < \epsilon \Rightarrow \text{Anomaly}
+\]
+
+\[
+\text{Else } \Rightarrow \text{Normal}
+\]
+
+Experiment with different values of $\epsilon$ and observe how the classification changes.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+% ============================================================
+
+\section*{Part C: Visualization (6 Marks)}
+
+\begin{tcolorbox}
+\textbf{Task 7: Visualize Dataset}
+
+Plot the dataset in a two-dimensional space. Clearly distinguish between 
+normal and anomalous transactions using different colors.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+\begin{tcolorbox}
+\textbf{Task 8: Plot Decision Boundaries}
+
+Visualize how both methods (Isolation Forest and Gaussian) separate normal 
+data from anomalies. Compare the shape of the regions produced by each method.
+
+\vspace{2cm}
+
+\vspace{2cm}
+\end{tcolorbox}
+
+\end{document}
