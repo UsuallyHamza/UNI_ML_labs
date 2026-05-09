@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ML Model Deployment</title>
+</head>
+<body>
+    <h2>Machine Learning Prediction Interface</h2>
+    <form action="/predict" method="POST">
+        <label>Age:</label><br>
+        <input type="number" step="any" name="age" required><br>
+        <label>Income:</label><br>
+        <input type="number" step="any" name="income" required><br>
+        <label>Hour:</label><br>
+        <input type="number" step="any" name="hour" required><br>
+        <label>Leak Feature:</label><br>
+        <input type="number" step="any" name="leak_feature" required><br><br>
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction is not none %}
+        <h3>Prediction Result: {{ prediction }}</h3>
+        <p>Input Data: {{ features }}</p>
+    {% endif %}
+</body>
+</html>
