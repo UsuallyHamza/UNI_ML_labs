@@ -431,7 +431,6 @@ def task8_evaluate_on_batches(model, scaler, batches):
         y_batch= df[TARGET]
 
         X_batch_scaled= scaler.transform(X_batch)
-        y_batch_scaled= scaler.transform(y_batch)
 
         y_pred=model.predict(X_batch_scaled)
 
@@ -479,7 +478,54 @@ def task9_drift_dashboard(batches, baseline_stats, alerts,
     None.  Save the figure as 'task9_drift_dashboard.png'.
     """
     # TODO: implement
-    pass
+    months = sorted(batches.keys())
+    
+    # Extract data for plotting
+    means = [batches[m]['transaction_amount'].mean() for m in months]
+    ks_stats = [ks_results[m]['ks_stat'] for m in months]
+    fraud_rates = [batches[m][TARGET].mean() for m in months]
+    f1_scores = [performance[m]['f1'] for m in months]
+    
+    base_mean = baseline_stats['transaction_amount']['mean']
+    base_std = baseline_stats['transaction_amount']['std']
+    
+    fig, axes = plt.subplots(4, 1, figsize=(10, 12), sharex=True)
+    
+    # Helper to add background shading
+    def apply_shading(ax):
+        ax.axvspan(3.5, 5.5, color='lightyellow', alpha=0.5, label='Feature Drift (M4-M5)')
+        ax.axvspan(5.5, 6.5, color='lightcoral', alpha=0.3, label='Concept Drift (M6)')
+
+    # Subplot 1: Means
+    axes[0].plot(months, means, marker='o', color='blue')
+    axes[0].axhline(base_mean + 2*base_std, color='red', linestyle='--', label='+2 Std Dev')
+    axes[0].axhline(base_mean - 2*base_std, color='red', linestyle='--', label='-2 Std Dev')
+    axes[0].set_title('Transaction Amount Mean')
+    axes[0].legend(loc='upper left', fontsize=8)
+    apply_shading(axes[0])
+
+    # Subplot 2: KS Stats
+    axes[1].plot(months, ks_stats, marker='s', color='purple')
+    for m in months:
+        if ks_results[m]['drifted']:
+            axes[1].scatter(m, ks_results[m]['ks_stat'], color='red', s=100, zorder=5) # Highlight drifted
+    axes[1].set_title('KS Statistic (Red dots = p < 0.05)')
+    apply_shading(axes[1])
+
+    # Subplot 3: Fraud Rate
+    axes[2].plot(months, fraud_rates, marker='^', color='darkorange')
+    axes[2].set_title('Fraud Rate')
+    apply_shading(axes[2])
+
+    # Subplot 4: F1 Score
+    axes[3].plot(months, f1_scores, marker='d', color='green')
+    axes[3].set_title('Model F1-Score')
+    axes[3].set_xlabel('Month')
+    apply_shading(axes[3])
+    
+    plt.tight_layout()
+    plt.savefig('task9_drift_dashboard.png')
+    plt.close()
 
 
 # ==================================================================
