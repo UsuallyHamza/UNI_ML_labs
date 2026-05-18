@@ -413,9 +413,35 @@ def task8_evaluate_on_batches(model, scaler, batches):
         Values : dict with keys:
             'accuracy' : float
             'f1'       : float
+    
+    example
+    performance={
+        1: {
+            'accuracy' : 0.5
+            'f1'       : 0.7
+        }
+    }
     """
     # TODO: implement
     performance = {}
+
+    for m, df in batches.items():
+
+        X_batch= df[FEATURES]
+        y_batch= df[TARGET]
+
+        X_batch_scaled= scaler.transform(X_batch)
+        y_batch_scaled= scaler.transform(y_batch)
+
+        y_pred=model.predict(X_batch_scaled)
+
+        performance[m]={
+            "accuracy": accuracy_score(y_batch, y_pred),
+            "f1": f1_score(y_batch, y_pred)
+        }
+
+
+
     return performance
 
 
